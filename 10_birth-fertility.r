@@ -11,10 +11,6 @@
   res_path <- paste0(main_path, "3_Resultate/10_Birth/")
   source("90_general.r")
 
-  # setwd("V:/RelSzen")
-  # res_path <- "3_Resultate/10_Birth/"
-  # source("1_Code/Modell/90_general.r")
-
 
 
 # import and data preparation ---------------------------------------------
