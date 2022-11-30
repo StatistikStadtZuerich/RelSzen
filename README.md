@@ -14,11 +14,11 @@ This [R](https://www.r-project.org/) code calculates population scenarios for th
 
 **Calculate future rates**
 
-	*10_birth-fertility.r: future fertility rate
+	* 10_birth-fertility.r: future fertility rate
 	
-	*11_birth-rel.r: religion of mother and child
+	* 11_birth-rel.r: religion of mother and child
 	
-	*20_death.r: mortality rates and life expectancy by religion
+	* 20_death.r: mortality rates and life expectancy by religion
 *30_immigration.r: future immigration rate
 *40_emigration.r: future emigration rate
 *50_conversion.r: future conversion rate
