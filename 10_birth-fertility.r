@@ -9,7 +9,7 @@
 # paths, general functions
   setwd("V:/RelSzen")
   res_path <- "3_Resultate/10_Birth/"
-  source("1_Code/Modell/90_general.r")
+  source("90_general.r")
 
 
 
