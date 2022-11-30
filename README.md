@@ -4,7 +4,33 @@
 
 ## Model
 
+### Data
 This [R](https://www.r-project.org/) code calculates population scenarios for the future reformed population of the city of Zurich. For data protection reasons the input and output data are not available here. The results of the calculations are population sizes by the ten church districts, years, and age classes (10 year classes).
+
+### Model components
+
+**Code to run all modules**
+*00_run-all.r: run all modules
+
+**Calculate future rates**
+*10_birth-fertility.r: future fertility rate
+*11_birth-rel.r: religion of mother and child
+*20_death.r: mortality rates and life expectancy by religion
+*30_immigration.r: future immigration rate
+*40_emigration.r: future emigration rate
+*50_conversion.r: future conversion rate
+
+**Core model**
+*60_demography-popscen.r: combine demographic processes and population scenarios
+
+**Area correction factors**
+*70_area.r: area factors
+
+**Functions**
+*90_general.r: general functions
+*91_plot-functions.r: plot functions
+*92_constrained-regression.r: constrained regression
+*93_life-expectancy.r: functions to calculate life expectancy
 
 ## Renv
 
