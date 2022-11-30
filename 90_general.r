@@ -26,19 +26,19 @@ library(readxl) # import excel files
 # paths, import parameters ------------------------------------------------
 
 # path for code
-code_path <- "1_Code/"
+code_path <- paste0(main_path, "1_Code/")
 
 # path for data
-data_path <- "2_Daten/"
+data_path <- paste0(main_path, "2_Daten/")
 
 # path for future rates
-exp_path <- "2_Daten/rates/"
+exp_path <- paste0(main_path, "2_Daten/rates/")
 
 # path for output (outputs of the model by cdistrict)
-out_path <- "2_Daten/output/"
+out_path <- paste0(main_path, "2_Daten/output/")
 
 # path for the results (final results by idistrict)
-fin_path <- "2_Daten/results/"
+fin_path <- paste0(main_path, "2_Daten/results/")
 
 
 # import an assign parameters
