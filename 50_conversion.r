@@ -5,9 +5,9 @@
 # paths, general ----------------------------------------------------------
 
 # paths, general functions
-  main_path <- "V:/RelSzen/"
-  res_path <- paste0(main_path, "3_Resultate/50_Conversion/")
-  source("90_general.r")
+main_path <- "V:/RelSzen/"
+res_path <- paste0(main_path, "3_Resultate/50_Conversion/")
+source("90_general.r")
 
 
 # data import -------------------------------------------------------------
@@ -28,7 +28,7 @@ con <- read_excel(paste0(data_path, "/input/Kon.xlsx")) %>%
   summarize(
     con = sum(con),
     .groups = "drop"
-  ) 
+  )
 
 
 # population
@@ -57,11 +57,11 @@ con_pop <- as_tibble(expand_grid(
   year = (date_start + 1):date_end,
   age = age_min:age_max,
   sex = uni_s,
-  rel = uni_r  
+  rel = uni_r
 )) %>%
-left_join(pop, by = c("cdistrict", "year", "age", "sex", "rel")) %>% 
-left_join(con, by = c("cdistrict", "year", "age", "sex", "rel")) %>% 
-replace_na(list(pop = 0, con = 0))
+  left_join(pop, by = c("cdistrict", "year", "age", "sex", "rel")) %>%
+  left_join(con, by = c("cdistrict", "year", "age", "sex", "rel")) %>%
+  replace_na(list(pop = 0, con = 0))
 
 
 # plots (past) ------------------------------------------------------------
@@ -75,56 +75,56 @@ year_past <- (date_start + 1):date_end
 year_past_5 <- sort(unique(year_past[year_past %% 5 == 0]))
 
 
-#yr 
-con_yr <- con_pop %>% 
+# yr
+con_yr <- con_pop %>%
   group_by(year, rel) %>%
   summarize(
     con = sum(con),
     pop = sum(pop),
     .groups = "drop"
-  ) %>% 
-mutate(con_rate_yr = if_else(pop == 0, NA_real_, round(con / pop * 100, round_rate)))
+  ) %>%
+  mutate(con_rate_yr = if_else(pop == 0, NA_real_, round(con / pop * 100, round_rate)))
 
 sszplot(con_yr,
-  aes_x = "year", aes_y = "con_rate_yr", aes_col = "rel", 
+  aes_x = "year", aes_y = "con_rate_yr", aes_col = "rel",
   i_x = year_past_5,
   labs_y = "conversion rate (in % per year)",
   name = "5000_conversion-rate_by-year-rel",
   width = 8, height = 5
 )
 
-#yasr 
-con_yasr <- con_pop %>% 
+# yasr
+con_yasr <- con_pop %>%
   group_by(year, age, sex, rel) %>%
   summarize(
     con = sum(con),
     pop = sum(pop),
     .groups = "drop"
-  ) %>% 
-mutate(con_rate_yasr = if_else(pop == 0, NA_real_, round(con / pop * 100, round_rate)))
+  ) %>%
+  mutate(con_rate_yasr = if_else(pop == 0, NA_real_, round(con / pop * 100, round_rate)))
 
-con_yasr %>% 
-  filter(year %in% year_past_5) %>% 
-sszplot(
-  aes_x = "age", aes_y = "con_rate_yasr", aes_col = "sex", 
-  grid = c("rel", "year"),
-  labs_y = "conversion rate (in % per year)",
-  name = "5001_conversion-rate_by-year-age-sex-rel",
-  width = 15, height = 6
-)
+con_yasr %>%
+  filter(year %in% year_past_5) %>%
+  sszplot(
+    aes_x = "age", aes_y = "con_rate_yasr", aes_col = "sex",
+    grid = c("rel", "year"),
+    labs_y = "conversion rate (in % per year)",
+    name = "5001_conversion-rate_by-year-age-sex-rel",
+    width = 15, height = 6
+  )
 
-#cyr 
-con_cyr <- con_pop %>% 
+# cyr
+con_cyr <- con_pop %>%
   group_by(cdistrict, year, rel) %>%
   summarize(
     con = sum(con),
     pop = sum(pop),
     .groups = "drop"
-  ) %>% 
-mutate(con_rate_cyr = if_else(pop == 0, NA_real_, round(con / pop * 100, round_rate)))
+  ) %>%
+  mutate(con_rate_cyr = if_else(pop == 0, NA_real_, round(con / pop * 100, round_rate)))
 
 sszplot(con_cyr,
-  aes_x = "year", aes_y = "con_rate_cyr", aes_col = "rel", 
+  aes_x = "year", aes_y = "con_rate_cyr", aes_col = "rel",
   i_x = year_past_5,
   wrap = "cdistrict", ncol = 5,
   labs_y = "conversion rate (in % per year)",
@@ -133,33 +133,33 @@ sszplot(con_cyr,
 )
 
 
-#cyasr 
-con_cyasr <- con_pop %>% 
+# cyasr
+con_cyasr <- con_pop %>%
   group_by(cdistrict, year, age, sex, rel) %>%
   summarize(
     con = sum(con),
     pop = sum(pop),
     .groups = "drop"
-  ) %>% 
-mutate(con_rate_cyasr = if_else(pop == 0, NA_real_, round(con / pop * 100, round_rate)))
+  ) %>%
+  mutate(con_rate_cyasr = if_else(pop == 0, NA_real_, round(con / pop * 100, round_rate)))
 
-con_cyasr %>% 
-  filter(year %in% year_past_5) %>% 
-sszplot(
-  aes_x = "age", aes_y = "con_rate_cyasr", aes_col = "sex", 
-  grid = c("rel", "year"),
-  labs_y = "proportion in %", labs_col = "year",
-  name = "5003_conversion-rate_by-cdistrict-year-age-sex-rel",
-  width = 14, height = 6,
-  multi = uni_c
-)
+con_cyasr %>%
+  filter(year %in% year_past_5) %>%
+  sszplot(
+    aes_x = "age", aes_y = "con_rate_cyasr", aes_col = "sex",
+    grid = c("rel", "year"),
+    labs_y = "proportion in %", labs_col = "year",
+    name = "5003_conversion-rate_by-cdistrict-year-age-sex-rel",
+    width = 14, height = 6,
+    multi = uni_c
+  )
 
 
 # model: preparation ------------------------------------------------------
 
 # Only for category 'reformed'
 # WHY? 'other' is very low in all groups as of 2017
-# overall values (2017 until 2021): 
+# overall values (2017 until 2021):
 # 'other': between 3 and 17 per year
 # 'reformed': between 1099 and 1783 per year
 # neglect 'other'
@@ -169,8 +169,8 @@ sszplot(
 # Hard to differentiate between numerical problems (in fit) and real negative values
 
 # data: 'reformed' only (religion before the conversion)
-con_cyas <- con_pop %>% 
-  filter(rel == uni_r[1]) %>% 
+con_cyas <- con_pop %>%
+  filter(rel == uni_r[1]) %>%
   select(-rel)
 
 # check
@@ -223,28 +223,30 @@ con_smooth_plot %>%
 # age (subjectively selected)
 age_plot_smooth <- seq(0, 80, by = 10)
 
-con_smooth_plot %>% 
-filter(age %in% age_plot_smooth) %>% 
-sszplot(
-  aes_x = "year", aes_y = "con", aes_col = "sex", aes_ltyp = "cat",
-  wrap = "as.factor(age)", ncol = 5,  
-  labs_y = "conversions per year",
-  name = "5011_conversion_smoothed-over-year_focus-years",
-  width = 12, height = 6,
-  multi = uni_c
-)
+con_smooth_plot %>%
+  filter(age %in% age_plot_smooth) %>%
+  sszplot(
+    aes_x = "year", aes_y = "con", aes_col = "sex", aes_ltyp = "cat",
+    wrap = "as.factor(age)", ncol = 5,
+    labs_y = "conversions per year",
+    name = "5011_conversion_smoothed-over-year_focus-years",
+    width = 12, height = 6,
+    multi = uni_c
+  )
 
 
 # model: smoothing rate by age with LOESS (by cys) ------------------------
 
 # conversion rate (based on smoothed conversions)
-con_rate_cyas <- con_smooth %>% 
+con_rate_cyas <- con_smooth %>%
   replace_na(list(pop = 0, con_smooth = 0)) %>%
-  mutate(rate_temp = if_else(pop < con_min_pop, NA_real_, round(con_smooth / pop * 100, round_rate)),
-    con_rate_cyas = if_else(age > con_age_max, con_age_value, rate_temp))        
+  mutate(
+    rate_temp = if_else(pop < con_min_pop, NA_real_, round(con_smooth / pop * 100, round_rate)),
+    con_rate_cyas = if_else(age > con_age_max, con_age_value, rate_temp)
+  )
 
 # smoothing rate by age
-rate_fit <- con_rate_cyas %>% 
+rate_fit <- con_rate_cyas %>%
   arrange(cdistrict, year, sex, age) %>%
   group_by(cdistrict, year, sex) %>%
   mutate(rate_fit = pmax(0, predict(
@@ -265,16 +267,16 @@ con_fit_plot <- rate_fit %>%
 
 
 # plot: focus age distribution
-con_fit_plot %>% 
-  filter(year %in% year_past_5) %>% 
-sszplot(
-  aes_x = "age", aes_y = "rate", aes_col = "cat",
-  grid = c("sex", "as.factor(year)"),
-  labs_y = "conversion rate (in % per year)",
-  name = "5012_conversion-rate_smoothed-over-age",
-  width = 15, height = 6,
-  multi = uni_c
-)
+con_fit_plot %>%
+  filter(year %in% year_past_5) %>%
+  sszplot(
+    aes_x = "age", aes_y = "rate", aes_col = "cat",
+    grid = c("sex", "as.factor(year)"),
+    labs_y = "conversion rate (in % per year)",
+    name = "5012_conversion-rate_smoothed-over-age",
+    width = 15, height = 6,
+    multi = uni_c
+  )
 
 
 # model: constrained regression -------------------------------------------
@@ -283,7 +285,7 @@ sszplot(
 years_base <- con_base_begin:con_base_end
 
 # data for base period
-rate_base <- rate_fit %>% 
+rate_base <- rate_fit %>%
   filter(year %in% years_base)
 
 # prediction (duration: approx. 10 seconds)
@@ -336,7 +338,3 @@ ex_con_rate_cyas <- mutate(con_past_pred,
 
 # export
 write_csv(ex_con_rate_cyas, paste0(exp_path, "conversion_rate-cyas_future.csv"))
-
-
-
-

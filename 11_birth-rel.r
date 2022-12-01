@@ -8,26 +8,27 @@
 # paths, general ----------------------------------------------------------
 
 # paths, general functions
-  main_path <- "V:/RelSzen/"
-  res_path <- paste0(main_path, "3_Resultate/10_Birth/")
-  source("90_general.r")  
-  
+main_path <- "V:/RelSzen/"
+res_path <- paste0(main_path, "3_Resultate/10_Birth/")
+source("90_general.r")
+
 
 # import and data preparation ---------------------------------------------
 
 # birth
 # age: only births of women at 'fertile age'
 # relb: rel of baby
-# rel: rel of mother  
-  
-bir <- read_excel(paste0(data_path, "/input/Geb.xlsx")) %>%   
-  rename(year = EreignisDatJahr, age = AlterVMutterCd, bir = AnzGebuWir) %>%   
-  filter((age >= bir_age_begin) & (age <= bir_age_end)) %>% 
-  left_join(look_c, by = c("KIK" = "cnum")) %>%   
+# rel: rel of mother
+
+bir <- read_excel(paste0(data_path, "/input/Geb.xlsx")) %>%
+  rename(year = EreignisDatJahr, age = AlterVMutterCd, bir = AnzGebuWir) %>%
+  filter((age >= bir_age_begin) & (age <= bir_age_end)) %>%
+  left_join(look_c, by = c("KIK" = "cnum")) %>%
   mutate(
-    relb = factor(if_else(Rel == 1, uni_r[1], uni_r[2]), uni_r),     
-    rel = factor(if_else(RelMutter == 1, uni_r[1], uni_r[2]), uni_r), 
-    cdistrict = factor(cdistrict, uni_c)) %>%   
+    relb = factor(if_else(Rel == 1, uni_r[1], uni_r[2]), uni_r),
+    rel = factor(if_else(RelMutter == 1, uni_r[1], uni_r[2]), uni_r),
+    cdistrict = factor(cdistrict, uni_c)
+  ) %>%
   select(cdistrict, year, age, relb, rel, bir) %>%
   group_by(cdistrict, year, age, relb, rel) %>%
   summarize(

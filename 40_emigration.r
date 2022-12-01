@@ -5,10 +5,10 @@
 # paths, general ----------------------------------------------------------
 
 # paths, general functions
-  main_path <- "V:/RelSzen/"
-  res_path <- paste0(main_path, "3_Resultate/40_Emigration/")
-  source("90_general.r")
-  
+main_path <- "V:/RelSzen/"
+res_path <- paste0(main_path, "3_Resultate/40_Emigration/")
+source("90_general.r")
+
 
 # 0. data import -------------------------------------------------------------
 

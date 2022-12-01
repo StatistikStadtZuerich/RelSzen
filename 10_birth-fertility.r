@@ -7,9 +7,9 @@
 # paths, general ----------------------------------------------------------
 
 # paths, general functions
-  main_path <- "V:/RelSzen/"
-  res_path <- paste0(main_path, "3_Resultate/10_Birth/")
-  source("90_general.r")
+main_path <- "V:/RelSzen/"
+res_path <- paste0(main_path, "3_Resultate/10_Birth/")
+source("90_general.r")
 
 
 
@@ -19,13 +19,15 @@
 # age: only births of women at 'fertile age'
 # rel: religion of the mother
 
-bir <- read_excel(paste0(data_path, "/input/Geb.xlsx")) %>% 
-  rename(year = EreignisDatJahr, age = AlterVMutterCd, bir = AnzGebuWir) %>% 
+bir <- read_excel(paste0(data_path, "/input/Geb.xlsx")) %>%
+  rename(year = EreignisDatJahr, age = AlterVMutterCd, bir = AnzGebuWir) %>%
   filter((age >= bir_age_begin) & (age <= bir_age_end)) %>%
-  left_join(look_c, by = c("KIK" = "cnum")) %>% 
-  mutate(rel = factor(if_else(RelMutter == 1, uni_r[1], uni_r[2]), uni_r), 
-    cdistrict = factor(cdistrict, uni_c)) %>% 
-  select(cdistrict, year, age, rel, bir) %>% 
+  left_join(look_c, by = c("KIK" = "cnum")) %>%
+  mutate(
+    rel = factor(if_else(RelMutter == 1, uni_r[1], uni_r[2]), uni_r),
+    cdistrict = factor(cdistrict, uni_c)
+  ) %>%
+  select(cdistrict, year, age, rel, bir) %>%
   group_by(cdistrict, year, age, rel) %>%
   summarize(
     bir = sum(bir),
@@ -37,16 +39,16 @@ bir <- read_excel(paste0(data_path, "/input/Geb.xlsx")) %>%
 # year: begin of year population (therefore: StichtagDatJahr + 1)
 # age: only women at 'fertile age'
 
-pop <- read_excel(paste0(data_path, "/input/BesTodZuzWeg.xlsx")) %>%  
-  rename(age = AlterVCd, pop = AnzBestWir) %>% 
+pop <- read_excel(paste0(data_path, "/input/BesTodZuzWeg.xlsx")) %>%
+  rename(age = AlterVCd, pop = AnzBestWir) %>%
   filter((SexCd == 2) & (age >= bir_age_begin) & (age <= bir_age_end)) %>%
-  left_join(look_c, by = c("KIK" = "cnum")) %>% 
+  left_join(look_c, by = c("KIK" = "cnum")) %>%
   mutate(
     year = StichtagDatJahr + 1,
     cdistrict = factor(cdistrict, uni_c),
     rel = factor(if_else(Rel == 1, uni_r[1], uni_r[2]), uni_r)
-  ) %>% 
-  select(cdistrict, year, age, rel, pop) %>% 
+  ) %>%
+  select(cdistrict, year, age, rel, pop) %>%
   group_by(cdistrict, year, age, rel) %>%
   summarize(
     pop = sum(pop),
@@ -65,16 +67,16 @@ cas <- as_tibble(expand_grid(
   year = (date_start + 1):date_end,
   age = bir_age_begin:bir_age_end,
   rel = uni_r
-)) %>% 
+)) %>%
   left_join(pop, by = c("cdistrict", "year", "age", "rel")) %>%
-  left_join(bir, by = c("cdistrict", "year", "age", "rel")) %>% 
+  left_join(bir, by = c("cdistrict", "year", "age", "rel")) %>%
   replace_na(list(pop = 0, bir = 0)) %>%
   left_join(look_a1, by = "age") %>%
   left_join(look_a2, by = "age")
 
 
 # fertility by year, age
-fer_ya <- cas %>% 
+fer_ya <- cas %>%
   group_by(year, age) %>%
   summarize(
     pop = sum(pop),
@@ -85,7 +87,7 @@ fer_ya <- cas %>%
   select(year, age, fer_ya)
 
 # fertility by year, age, rel
-fer_yar <- cas %>% 
+fer_yar <- cas %>%
   group_by(year, age, rel) %>%
   summarize(
     pop = sum(pop),
@@ -97,7 +99,7 @@ fer_yar <- cas %>%
 
 # fertility by cdistrict, year, age, rel
 # is already aggregated by cdistrict, year, age, rel
-fer_cyar <- cas %>% 
+fer_cyar <- cas %>%
   mutate(fer_cyar = if_else(pop == 0, NA_real_, round(bir / pop * 100, round_rate)))
 
 
@@ -116,7 +118,7 @@ sszplot(tfr_y,
   aes_x = "year", aes_y = "tfr_y",
   labs_y = "TFR", i_x = "5",
   geom = c("line", "point"),
-  quotes = quote(expand_limits(y = 0)),    
+  quotes = quote(expand_limits(y = 0)),
   name = "1000_TFR_by-year"
 )
 
@@ -131,7 +133,7 @@ sszplot(tfr_yr,
   aes_x = "year", aes_y = "tfr_yr", aes_col = "rel",
   labs_y = "TFR", i_x = "5",
   geom = c("line", "point"),
-  quotes = quote(expand_limits(y = 0)),    
+  quotes = quote(expand_limits(y = 0)),
   name = "1001_TFR_by-year-rel"
 )
 
@@ -148,7 +150,7 @@ sszplot(tfr_ya1,
   aes_x = "year", aes_y = "tfr_ya1", aes_col = "age",
   i_x = "5", labs_y = "TFR",
   geom = c("line", "point"),
-  quotes = quote(expand_limits(y = 0)),   
+  quotes = quote(expand_limits(y = 0)),
   name = "1002_TFR_by-year-age1"
 )
 
@@ -166,7 +168,7 @@ sszplot(tfr_ya2,
   aes_x = "year", aes_y = "tfr_ya2", aes_col = "age",
   i_x = "5", labs_y = "TFR",
   geom = c("line", "point"),
-  quotes = quote(expand_limits(y = 0)),   
+  quotes = quote(expand_limits(y = 0)),
   name = "1003_TFR_by-year-age2"
 )
 
@@ -185,7 +187,7 @@ sszplot(tfr_ya1r,
   wrap = "age", ncol = nlevels(tfr_ya1r$age),
   labs_y = "TFR", i_x = "5",
   geom = c("line", "point"),
-  quotes = quote(expand_limits(y = 0)),   
+  quotes = quote(expand_limits(y = 0)),
   name = "1004_TFR_by-year-age1-rel",
   width = 16, height = 5
 )
@@ -205,15 +207,15 @@ sszplot(tfr_ya2r,
   wrap = "age", ncol = nlevels(tfr_ya2r$age),
   labs_y = "TFR", i_x = "5",
   geom = c("line", "point"),
-  quotes = quote(expand_limits(y = 0)),   
+  quotes = quote(expand_limits(y = 0)),
   name = "1005_TFR_by-year-age2-rel",
   width = 16, height = 5
 )
 
 
 # TFR by cdistrict, year, rel
-tfr_cyr <- fer_cyar %>% 
-  group_by(cdistrict, year, rel) %>%  
+tfr_cyr <- fer_cyar %>%
+  group_by(cdistrict, year, rel) %>%
   summarize(
     tfr_cyr = sum_NA(fer_cyar / 100),
     .groups = "drop"
@@ -224,7 +226,7 @@ sszplot(tfr_cyr,
   wrap = "cdistrict", ncol = 3,
   labs_y = "TFR", i_x = "5",
   geom = c("line", "point"),
-  quotes = quote(expand_limits(y = 0)),   
+  quotes = quote(expand_limits(y = 0)),
   name = "1006_TFR_by-cdistrict-year-rel",
   width = 14, height = 10
 )
@@ -234,53 +236,57 @@ sszplot(tfr_cyr,
 # fertility, birth, population (before any corrections) --------------------------------
 
 # base years only
-fer_cyar_base <- fer_cyar %>% 
+fer_cyar_base <- fer_cyar %>%
   filter((year >= bir_base_begin) & (year <= bir_base_end))
-  
+
 # plot: fertility by district, year, age, rel
-  sszplot(fer_cyar_base, aes_x = "age", aes_y = "fer_cyar", aes_col = "rel",
-    wrap = "as.factor(year)", labs_y = "fertility rate (in % per year)",
-    name = "1010_fertility_by-cdistrict-year-age-rel",
-    width = 11, height = 5,
-    multi = uni_c
-  )
-  
+sszplot(fer_cyar_base,
+  aes_x = "age", aes_y = "fer_cyar", aes_col = "rel",
+  wrap = "as.factor(year)", labs_y = "fertility rate (in % per year)",
+  name = "1010_fertility_by-cdistrict-year-age-rel",
+  width = 11, height = 5,
+  multi = uni_c
+)
+
 # why high fertility rate in Kirchenkreis* 4+5 in 2013, reformed?
 # 4 women at age 16, and 1 birth
-fer_cyar_base %>% 
+fer_cyar_base %>%
   filter((cdistrict == "Kirchenkreis 4+5") & (year == 2013) & (age < 17))
 
 # similar in 2014
 # 8 women at age 19, and 1 birth
-fer_cyar_base %>% 
+fer_cyar_base %>%
   filter((cdistrict == "Kirchenkreis 4+5") & (year == 2014) & (age < 20))
 
 
 # plot: births by district, year, age, rel
-  sszplot(fer_cyar_base, aes_x = "age", aes_y = "bir", aes_col = "rel",
-    wrap = "as.factor(year)", labs_y = "births (per year)",
-    name = "1011_births_by-cdistrict-year-age-rel",
-    width = 11, height = 5,
-    multi = uni_c
-  )
-  
+sszplot(fer_cyar_base,
+  aes_x = "age", aes_y = "bir", aes_col = "rel",
+  wrap = "as.factor(year)", labs_y = "births (per year)",
+  name = "1011_births_by-cdistrict-year-age-rel",
+  width = 11, height = 5,
+  multi = uni_c
+)
+
 # same plot (but free y-scale: since category 'reformed' is much lower)
-  sszplot(fer_cyar_base, aes_x = "age", aes_y = "bir", aes_col = "rel",
-    labs_y = "births (per year)",
-    name = "1012_births_by-cdistrict-year-age-rel_scales",
-    width = 16, height = 6,
-    multi = uni_c,
-    quotes = quote(facet_grid(rel ~ as.factor(year), scales = "free_y"))
-  )  
-    
+sszplot(fer_cyar_base,
+  aes_x = "age", aes_y = "bir", aes_col = "rel",
+  labs_y = "births (per year)",
+  name = "1012_births_by-cdistrict-year-age-rel_scales",
+  width = 16, height = 6,
+  multi = uni_c,
+  quotes = quote(facet_grid(rel ~ as.factor(year), scales = "free_y"))
+)
+
 # plot: population by district, year, age, rel
-  sszplot(fer_cyar_base, aes_x = "age", aes_y = "pop", aes_col = "rel",
-    wrap = "as.factor(year)", labs_y = "population",
-    name = "1013_population_by-cdistrict-year-age-rel",
-    width = 11, height = 5,
-    multi = uni_c
-  ) 
-  
+sszplot(fer_cyar_base,
+  aes_x = "age", aes_y = "pop", aes_col = "rel",
+  wrap = "as.factor(year)", labs_y = "population",
+  name = "1013_population_by-cdistrict-year-age-rel",
+  width = 11, height = 5,
+  multi = uni_c
+)
+
 
 
 # smooth fertility rate ---------------------------------------------------
@@ -293,16 +299,17 @@ fer_fit <- fer_cyar_base %>%
     fer_fit = pmax(0, predict(loess(fer_cyar ~ age,
       span = bir_fer_span, degree = 1,
       na.action = na.aggregate
-    )))) %>%
+    )))
+  ) %>%
   ungroup()
 
-  
+
 
 # plot preparation
-fit_lev <- c("initial", "smoothed")  
-  
-fit_dat <- fer_fit %>% 
-  rename(fer = fer_cyar) %>% 
+fit_lev <- c("initial", "smoothed")
+
+fit_dat <- fer_fit %>%
+  rename(fer = fer_cyar) %>%
   select(cdistrict, year, age, rel, fer, fer_fit) %>%
   pivot_longer(c(fer, fer_fit), names_to = "category", values_to = "fer") %>%
   mutate(cat = factor(if_else(category == "fer",
@@ -362,7 +369,7 @@ sszplot(fer_pred,
 # smooth the future fertility rates ---------------------------------------
 
 # smoothed (only the prediction years)
-pred_fit <- fer_pred %>% 
+pred_fit <- fer_pred %>%
   filter(year >= scen_begin) %>%
   arrange(cdistrict, year, rel, age) %>%
   group_by(cdistrict, year, rel) %>%
@@ -489,11 +496,9 @@ sszplot(tfr_a2,
 
 # remove variables without further use
 rm(list = c(
-  "bir", "cas", "fer_cyar", "fer_ya", "fer_yar", 
+  "bir", "cas", "fer_cyar", "fer_ya", "fer_yar",
   "fer_fit", "fer_pred",
   "pred_fit", "pop", "sel_dat", "tfr_a1", "tfr_a2",
   "tfr_y", "tfr_ya1", "tfr_ya1r", "tfr_ya2", "tfr_ya2r",
   "tfr_yr", "fer_cyar_base", "fer_ex", "fer_ex_past"
 ))
-
-

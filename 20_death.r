@@ -5,37 +5,39 @@
 # paths, general ----------------------------------------------------------
 
 # paths, general functions
-  main_path <- "V:/RelSzen/"
-  res_path <- paste0(main_path, "3_Resultate/20_Death/")
-  source("90_general.r")  
-  
-  
+main_path <- "V:/RelSzen/"
+res_path <- paste0(main_path, "3_Resultate/20_Death/")
+source("90_general.r")
+
+
 
 # import and data preparation ---------------------------------------------
 
 # import: population and death
-imp_pop_dea <- read_excel(paste0(data_path, "/input/BesTodZuzWeg.xlsx"))    
-  
+imp_pop_dea <- read_excel(paste0(data_path, "/input/BesTodZuzWeg.xlsx"))
+
 # death
 dea <- imp_pop_dea %>%
   rename(year = StichtagDatJahr, age = AlterVCd, dea = AnzSterWir) %>%
-  mutate(sex = factor(if_else(SexCd == 1, uni_s[1], uni_s[2]), uni_s),
-         rel = factor(if_else(Rel == 1, uni_r[1], uni_r[2]), uni_r)) %>% 
+  mutate(
+    sex = factor(if_else(SexCd == 1, uni_s[1], uni_s[2]), uni_s),
+    rel = factor(if_else(Rel == 1, uni_r[1], uni_r[2]), uni_r)
+  ) %>%
   group_by(year, age, sex, rel) %>%
   summarize(
     dea = sum(dea),
     .groups = "drop"
   )
 
-  
-# birth (needed to calculate life expectancy)  
-bir <- read_excel(paste0(data_path, "/input/Geb.xlsx")) %>% 
-  rename(year = EreignisDatJahr, bir = AnzGebuWir) %>%   
+
+# birth (needed to calculate life expectancy)
+bir <- read_excel(paste0(data_path, "/input/Geb.xlsx")) %>%
+  rename(year = EreignisDatJahr, bir = AnzGebuWir) %>%
   mutate(
     age = 0,
-    sex = factor(if_else(SexCd == 1, uni_s[1], uni_s[2]), uni_s), 
-    rel = factor(if_else(Rel == 1, uni_r[1], uni_r[2]), uni_r) 
-  ) %>% 
+    sex = factor(if_else(SexCd == 1, uni_s[1], uni_s[2]), uni_s),
+    rel = factor(if_else(Rel == 1, uni_r[1], uni_r[2]), uni_r)
+  ) %>%
   group_by(year, age, sex, rel) %>%
   summarize(
     B = sum(bir),
@@ -44,7 +46,7 @@ bir <- read_excel(paste0(data_path, "/input/Geb.xlsx")) %>%
 
 # population
 # year: begin of year population
-pop <- imp_pop_dea %>%  
+pop <- imp_pop_dea %>%
   rename(age = AlterVCd, pop = AnzBestWir) %>%
   mutate(
     year = StichtagDatJahr + 1,
@@ -65,7 +67,8 @@ mor_yasr <- as_tibble(expand_grid(
   year = (date_start + 1):date_end,
   age = age_min:age_max,
   sex = uni_s,
-  rel = uni_r)) %>% 
+  rel = uni_r
+)) %>%
   left_join(pop, by = c("year", "age", "sex", "rel")) %>%
   left_join(dea, by = c("year", "age", "sex", "rel")) %>%
   replace_na(list(pop = 0, dea = 0)) %>%
@@ -214,7 +217,7 @@ plot(le_mult_sub$age, le_mult_sub$px_, type = "o")
 plot(le_mult_sub$age, le_mult_sub$mult)
 
 # life expectancy at certain age (e.g. birth)
-le <- le_mult %>% 
+le <- le_mult %>%
   group_by(year, sex, rel) %>%
   summarize(
     life_years = sum(Lx_[age >= dea_age_at], na.rm = TRUE),
@@ -262,6 +265,3 @@ sszplot(le_ysr,
   name = "2005_life-expectancy-at-birth_by-year-sex-rel_focus-rel",
   width = 10, height = 6
 )
-
-
-
